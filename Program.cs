@@ -2,10 +2,37 @@ using HRManagementAPI.Data;
 using HRManagementAPI.Services;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using HRManagementAPI.Responses;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.Value!.Errors
+                        .Select(e => e.ErrorMessage)
+                        .ToArray()
+                );
+
+            var response = new ValidationResponse
+            {
+                Status = 400,
+                Message = "Validation failed",
+                Errors = errors
+            };
+
+            return new BadRequestObjectResult(response);
+        };
+    });
+
 builder.Services.AddDbContext<HRDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")

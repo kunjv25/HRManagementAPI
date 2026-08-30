@@ -1,31 +1,39 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HRManagementAPI.DTOs.Employee
+namespace HRManagementAPI.DTO.Employee
 {
     public class EmployeeCreateDto
     {
-        [Required]
+        [Required(ErrorMessage = "First name is required.")]
         public string FirstName { get; set; } = string.Empty;
 
-        [Required]
+
+        [Required(ErrorMessage = "Last name is required.")]
         public string LastName { get; set; } = string.Empty;
 
-        [Required]
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
+
+        [Required(ErrorMessage = "Phone number is required.")]
         public string Phone { get; set; } = string.Empty;
 
-        [Required]
+
+        [Range(1, double.MaxValue, ErrorMessage = "Salary must be Positive value")]
+
         public decimal Salary { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "Joining date is required.")]
         public DateTime JoiningDate { get; set; }
 
-        [Required]
+
         public bool IsActive { get; set; }
 
-        [Required]
+
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid department.")]
         public int DepartmentId { get; set; }
     }
 }
