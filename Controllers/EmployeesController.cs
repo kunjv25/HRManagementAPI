@@ -1,4 +1,5 @@
-﻿using HRManagementAPI.DTOs.Employee;
+﻿using HRManagementAPI.DTO.Employee;
+using HRManagementAPI.DTOs.Employee;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,15 +91,19 @@ namespace HRManagementAPI.Controllers
          * Delete employee
          * -----------------------
          * DELETE: api/employees/5 
-         */ 
+         */
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteEmployee(int id)
         {
-            var deleted = await _employeeService.DeleteAsync(id);
+            var result = await _employeeService.DeleteAsync(id);
 
-            if (!deleted)
+            if (!result)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "Employee not found."
+                });
             }
 
             return NoContent();

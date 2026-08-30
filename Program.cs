@@ -1,9 +1,10 @@
 using HRManagementAPI.Data;
+using HRManagementAPI.Middleware;
+using HRManagementAPI.Responses;
 using HRManagementAPI.Services;
 using HRManagementAPI.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using HRManagementAPI.Responses;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +14,7 @@ builder.Services
     {
         options.InvalidModelStateResponseFactory = context =>
         {
-            var errors = context.ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
+            var errors = context.ModelState.Where(x => x.Value?.Errors.Count > 0)
                 .ToDictionary(
                     x => x.Key,
                     x => x.Value!.Errors
@@ -50,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

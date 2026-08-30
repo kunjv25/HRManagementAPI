@@ -21,8 +21,7 @@ namespace HRManagementAPI.DTO.Employee
         public string Phone { get; set; } = string.Empty;
 
 
-        [Range(1, double.MaxValue, ErrorMessage = "Salary must be Positive value")]
-
+        [Range(1, double.MaxValue, ErrorMessage = "Salary must be Positive")]
         public decimal Salary { get; set; }
 
 

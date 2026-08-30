@@ -1,4 +1,5 @@
-﻿using HRManagementAPI.DTOs;
+﻿using HRManagementAPI.DTO.Employee;
+using HRManagementAPI.DTOs;
 using HRManagementAPI.DTOs.Employee;
 
 namespace HRManagementAPI.Services.Interfaces

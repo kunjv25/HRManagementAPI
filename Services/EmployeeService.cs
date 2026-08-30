@@ -1,4 +1,5 @@
 ﻿using HRManagementAPI.Data;
+using HRManagementAPI.DTO.Employee;
 using HRManagementAPI.DTOs.Employee;
 using HRManagementAPI.Models;
 using HRManagementAPI.Services.Interfaces;
@@ -61,9 +62,22 @@ namespace HRManagementAPI.Services
 
 
         // CREATE EMPLOYEE
-        public async Task<EmployeeResponseDto> CreateAsync(
-            EmployeeCreateDto dto)
+        public async Task<EmployeeResponseDto> CreateAsync(EmployeeCreateDto dto)
         {
+            var departmentExists = await _context.Departments.AnyAsync(d => d.Id == dto.DepartmentId);
+
+            if (!departmentExists)
+            {
+                throw new KeyNotFoundException("Department not found.");
+            }
+
+            var emailExists = await _context.Employees.AnyAsync(e => e.Email == dto.Email);
+
+            if (emailExists)
+            {
+                throw new InvalidOperationException("Employee with this email already exists.");
+            }
+
             var employee = new Employee
             {
                 FirstName = dto.FirstName,
@@ -104,6 +118,21 @@ namespace HRManagementAPI.Services
             if (employee == null)
             {
                 return null;
+            }
+
+            var departmentExists = await _context.Departments.AnyAsync(d => d.Id == dto.DepartmentId);
+
+            if (!departmentExists)
+            {
+                throw new KeyNotFoundException("Department not found.");
+            }
+
+            var emailExists = await _context.Employees.AnyAsync(e => e.Email == dto.Email && e.Id != id);
+
+            if (emailExists)
+            {
+                throw new InvalidOperationException(
+                    "Employee with this email already exists.");
             }
 
             employee.FirstName = dto.FirstName;
