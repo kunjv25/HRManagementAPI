@@ -22,8 +22,6 @@ namespace HRManagementAPI.DTOs.Employee
         [Required]
         public DateTime JoiningDate { get; set; }
 
-        public DateTime? LeavingDate { get; set; }
-
         [Required]
         public bool IsActive { get; set; }
 

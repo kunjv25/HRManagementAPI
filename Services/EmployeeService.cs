@@ -73,7 +73,6 @@ namespace HRManagementAPI.Services
                 Salary = dto.Salary,
                 JoiningDate = dto.JoiningDate,
                 IsActive = dto.IsActive,
-                LeavingDate = dto.LeavingDate,
                 DepartmentId = dto.DepartmentId
             };
 

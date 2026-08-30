@@ -10,6 +10,20 @@ namespace HRManagementAPI.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>()
+                .Property(e => e.Id)
+                .UseIdentityColumn(1, 1);
+
+            modelBuilder.Entity<Department>()
+                .Property(d => d.Id)
+                .UseIdentityColumn(1001, 1);
+
+            modelBuilder.Entity<Department>()
+                .HasIndex(d => d.DepartmentName)
+                .IsUnique();
+        }
 
         public DbSet<Employee> Employees { get; set; }
 

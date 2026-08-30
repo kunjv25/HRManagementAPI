@@ -15,7 +15,12 @@ namespace HRManagementAPI.Controllers
             _employeeService = employeeService;
         }
 
-        // GET: api/employees [all]
+
+        /***
+         * get all employees
+         * -------------------
+         * GET: api/employees
+         */
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -24,7 +29,12 @@ namespace HRManagementAPI.Controllers
             return Ok(employees);
         }
 
-        // GET: api/employees/5 [1]
+
+        /***
+         * get 1 employee
+         * ------------------------
+         * GET: api/employees/5 
+         * */
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -38,7 +48,12 @@ namespace HRManagementAPI.Controllers
             return Ok(employee);
         }
 
-        // POST: api/employees [create]
+
+        /***
+         * create employee
+         * --------------------
+         * POST: api/employees 
+         */ 
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeCreateDto dto)
         {
@@ -51,7 +66,12 @@ namespace HRManagementAPI.Controllers
             );
         }
 
-        // PUT: api/employees/5 [update]
+
+        /***
+         * Update employee
+         * ---------------------
+         * PUT: api/employees/5 
+         */
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, EmployeeUpdateDto dto)
         {
@@ -65,7 +85,12 @@ namespace HRManagementAPI.Controllers
             return Ok(employee);
         }
 
-        // DELETE: api/employees/5 [delete]
+
+        /***
+         * Delete employee
+         * -----------------------
+         * DELETE: api/employees/5 
+         */ 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
