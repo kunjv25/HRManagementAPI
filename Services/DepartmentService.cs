@@ -1,6 +1,5 @@
 ﻿using HRManagementAPI.Data;
-using HRManagementAPI.DTO;
-using HRManagementAPI.DTOs;
+using HRManagementAPI.DTO.Department;
 using HRManagementAPI.Models;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿namespace HRManagementAPI.DTO
+﻿namespace HRManagementAPI.DTO.Department
 {
     public class DepartmentResponseDto
     {

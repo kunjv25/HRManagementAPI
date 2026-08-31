@@ -1,5 +1,4 @@
 ﻿using HRManagementAPI.DTO.Employee;
-using HRManagementAPI.DTOs.Employee;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,9 +22,28 @@ namespace HRManagementAPI.Controllers
          * GET: api/employees
          */
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet]
+        public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10)
         {
-            var employees = await _employeeService.GetAllAsync();
+            if (pageNumber < 1)
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Page number must be greater than 0."
+                });
+            }
+
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Page size must be between 1 and 100."
+                });
+            }
+
+            var employees = await _employeeService.GetAllAsync(pageNumber, pageSize);
 
             return Ok(employees);
         }

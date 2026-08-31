@@ -1,4 +1,4 @@
-﻿using HRManagementAPI.DTO;
+﻿using HRManagementAPI.DTO.Department;
 
 namespace HRManagementAPI.Services.Interfaces
 {

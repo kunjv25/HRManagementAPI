@@ -1,6 +1,5 @@
 ﻿using HRManagementAPI.Data;
 using HRManagementAPI.DTO.Employee;
-using HRManagementAPI.DTOs.Employee;
 using HRManagementAPI.Models;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +19,16 @@ namespace HRManagementAPI.Services
         }
 
         // GET ALL EMPLOYEES
-        public async Task<List<EmployeeResponseDto>> GetAllAsync()
+        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize)
         {
-            return await _context.Employees
+            var query = _context.Employees.AsQueryable();
+
+            var totalRecords = await query.CountAsync();
+
+            var employees = await query
+                .OrderBy(e => e.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(e => new EmployeeResponseDto
                 {
                     Id = e.Id,
@@ -38,6 +44,17 @@ namespace HRManagementAPI.Services
                     DepartmentName = e.Department != null ? e.Department.DepartmentName : null
                 })
                 .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            return new EmployeePagedResponseDto
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                Employees = employees
+            };
         }
 
 
@@ -138,7 +155,7 @@ namespace HRManagementAPI.Services
 
             if (emailExists)
             {
-
+                _logger.LogWarning("Employee creation failed because email already exists.");
                 throw new InvalidOperationException("Employee with this email already exists.");
             }
 

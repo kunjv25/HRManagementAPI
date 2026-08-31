@@ -1,4 +1,4 @@
-﻿using HRManagementAPI.DTO;
+﻿using HRManagementAPI.DTO.Department;
 using HRManagementAPI.DTOs;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
