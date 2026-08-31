@@ -19,9 +19,17 @@ namespace HRManagementAPI.Services
         }
 
         // GET ALL EMPLOYEES
-        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search)
         {
             var query = _context.Employees.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(e =>
+                    e.FirstName.Contains(search) ||
+                    e.LastName.Contains(search) ||
+                    e.Email.Contains(search));
+            }
 
             var totalRecords = await query.CountAsync();
 
