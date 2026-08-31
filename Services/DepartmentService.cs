@@ -10,10 +10,12 @@ namespace HRManagementAPI.Services
     public class DepartmentService : IDepartmentService
     {
         private readonly HRDbContext _context;
+        private readonly ILogger<DepartmentService> _logger;
 
-        public DepartmentService(HRDbContext context)
+        public DepartmentService(HRDbContext context, ILogger<DepartmentService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
 
@@ -59,6 +61,7 @@ namespace HRManagementAPI.Services
             try
             {
                 await _context.SaveChangesAsync();
+                _logger.LogInformation($"Department {department.Id} created successfully.");
             }
             catch (DbUpdateException)
             {
@@ -84,6 +87,7 @@ namespace HRManagementAPI.Services
             department.DepartmentName = dto.DepartmentName;
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Department {department.Id} updated successfully.");
 
             return new DepartmentResponseDto
             {
@@ -104,6 +108,7 @@ namespace HRManagementAPI.Services
             _context.Departments.Remove(department);
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Department {department.Id} deleted successfully.");
 
             return true;
         }

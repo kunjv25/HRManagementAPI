@@ -10,10 +10,13 @@ namespace HRManagementAPI.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly HRDbContext _context;
+        private readonly ILogger<EmployeeService> _logger;
 
-        public EmployeeService(HRDbContext context)
+
+        public EmployeeService(HRDbContext context, ILogger<EmployeeService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET ALL EMPLOYEES
@@ -68,6 +71,7 @@ namespace HRManagementAPI.Services
 
             if (!departmentExists)
             {
+                _logger.LogWarning($"Employee creation failed. Department {dto.DepartmentId} not found.");
                 throw new KeyNotFoundException("Department not found.");
             }
 
@@ -75,6 +79,7 @@ namespace HRManagementAPI.Services
 
             if (emailExists)
             {
+                _logger.LogWarning("Employee creation failed because email already exists.");
                 throw new InvalidOperationException("Employee with this email already exists.");
             }
 
@@ -93,6 +98,7 @@ namespace HRManagementAPI.Services
             _context.Employees.Add(employee);
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Employee {employee.Id} created successfully.");
 
             return new EmployeeResponseDto
             {
@@ -124,6 +130,7 @@ namespace HRManagementAPI.Services
 
             if (!departmentExists)
             {
+                _logger.LogWarning($"Employee creation failed. Department {dto.DepartmentId} not found.");
                 throw new KeyNotFoundException("Department not found.");
             }
 
@@ -131,8 +138,8 @@ namespace HRManagementAPI.Services
 
             if (emailExists)
             {
-                throw new InvalidOperationException(
-                    "Employee with this email already exists.");
+
+                throw new InvalidOperationException("Employee with this email already exists.");
             }
 
             employee.FirstName = dto.FirstName;
@@ -146,6 +153,7 @@ namespace HRManagementAPI.Services
             employee.DepartmentId = dto.DepartmentId;
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Employee {employee.Id} updated successfully.");
 
             return new EmployeeResponseDto
             {
@@ -176,6 +184,7 @@ namespace HRManagementAPI.Services
             _context.Employees.Remove(employee);
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Employee {employee.Id} deleted successfully.");
 
             return true;
         }
