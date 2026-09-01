@@ -1,0 +1,177 @@
+﻿## HR Management System — Project Index
+
+## Phase 1 — Project Setup
+
+* Create ASP.NET Core Web API Project
+* Configure SQL Server
+* Configure EF Core
+* Create Entities
+* Create DbContext
+* Configure Database Connection
+* Create Initial Migration
+* Apply Migration to Database
+
+## Phase 2 — Database & Entity Configuration
+
+* Employee Entity Configuration
+* Department Entity Configuration
+* Employee ↔ Department Relationship
+* Foreign Key Configuration
+* Identity / Auto-Increment IDs
+* Employee ID starts from `1`
+* Department ID starts from `1001`
+* Add `LeavingDate` to Employee
+* Unique Department Name
+* EF Core Migrations
+
+## Phase 3 — Basic CRUD
+
+* Get All Employees
+* Get Employee by ID
+* Create Employee
+* Update Employee
+* Delete Employee
+* Department CRUD
+
+## Phase 4 — DTO & API Design
+
+* Create DTOs
+* Entity → DTO Mapping
+* DTO → Entity Mapping
+* Separate Create / Update / Response DTOs
+* EmployeePagedResponseDto
+* API Response Structure
+* Employee ↔ Department Response
+
+## Phase 5 — Service Layer & Dependency Injection
+
+* Create `IEmployeeService`
+* Create `EmployeeService`
+* Create `IDepartmentService`
+* Create `DepartmentService`
+* Register Services with Dependency Injection
+* Understand `AddScoped`
+* Controller → Service → DbContext Flow
+* Separation of Concerns
+
+## Phase 6 — Validation & Error Handling
+
+* Data Annotation Validation
+* Business Validation
+* Department Existence Validation (Create Unique Department)
+* Employee Email Uniqueness (Create/Update Unique Email)
+* HTTP Status Codes (which status code to give when x error happens)
+* Global Exception Handling
+* Custom Error Response
+
+## Phase 7 — Querying
+
+* Filtering
+* Searching
+* Sorting
+* Pagination
+* Search + Sort + Pagination
+* Dynamic Query Building
+
+## Phase 8 — Architecture
+
+* Repository / Data Access
+* Repository Pattern
+* SOLID Principles
+* Clean Architecture
+
+## Phase 9 — Authentication & Authorization
+
+* User Registration
+* Password Hashing
+* Login
+* JWT Authentication
+* JWT Claims
+* Role-Based Authorization
+* Refresh Tokens
+
+## Phase 10 — Security
+
+* HTTPS
+* CORS
+* Secure Configuration
+* User Secrets
+* Azure Key Vault
+* API Security Best Practices
+
+## Phase 11 — Testing
+
+* Unit Testing
+* xUnit
+* Moq
+* Controller/Service Tests
+* Integration Testing
+* Test Coverage
+
+## Phase 12 — Performance
+
+* AsNoTracking
+* Efficient LINQ Queries
+* Projection
+* N+1 Query Problem
+* Database Indexing
+* SQL Query Optimization
+* Caching
+* API Performance
+
+## Phase 13 — Logging & Monitoring
+
+* ASP.NET Core Logging
+* Structured Logging
+* Centralized Logging
+* Prometheus
+* Grafana
+* ELK Stack
+* Health Checks
+* Application Monitoring
+
+## Phase 14 — Web Application
+
+* Create Frontend Application
+* Connect Frontend to API
+* Login & JWT
+* Employee Management UI
+* Department Management UI
+* Search/Sort/Pagination UI
+* Validation & Error Handling
+
+## Phase 15 — Azure
+
+* Create Azure Account
+* Azure Resource Group
+* Azure SQL Database
+* Connect API to Azure SQL
+* Azure App Service
+* Deploy ASP.NET Core API
+* Environment Configuration
+* Azure Key Vault
+* Application Insights / Azure Monitor
+
+## Phase 16 — GitHub & CI/CD
+
+* GitHub Repository
+* Branching Strategy
+* Pull Requests
+* GitHub Actions
+* Build Pipeline
+* Test Pipeline
+* Azure Deployment Pipeline
+
+## Phase 17 — Final Production Features
+
+* API Versioning
+* Rate Limiting
+* Health Checks
+* Caching
+* Security Hardening
+* Docker Basics
+* Production Configuration
+* Final Testing
+* Final Deployment
+* Project Documentation / README
+
