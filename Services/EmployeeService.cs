@@ -19,16 +19,26 @@ namespace HRManagementAPI.Services
         }
 
         // GET ALL EMPLOYEES
-        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search)
+        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive)
         {
             var query = _context.Employees.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                query = query.Where(e =>
-                    e.FirstName.Contains(search) ||
-                    e.LastName.Contains(search) ||
-                    e.Email.Contains(search));
+                // WHERE (FirstName LIKE '%john%' OR LastName LIKE '%john%' OR Email LIKE '%john%') (only query is made)
+                query = query.Where(e => e.FirstName.Contains(search) || e.LastName.Contains(search) || e.Email.Contains(search));    
+            }
+
+            if (departmentId.HasValue)
+            {
+                // Where () and DepartmentId = 2 (only query is made)
+                query = query.Where(e => e.DepartmentId == departmentId.Value);
+            }
+
+            if (isActive.HasValue)
+            {
+                // Where () and () and IsActive = 1 (only query is made)
+                query = query.Where(e => e.IsActive == isActive.Value);
             }
 
             var totalRecords = await query.CountAsync();
@@ -51,7 +61,7 @@ namespace HRManagementAPI.Services
                     DepartmentId = e.DepartmentId,
                     DepartmentName = e.Department != null ? e.Department.DepartmentName : null
                 })
-                .ToListAsync();
+                .ToListAsync();     // query execute
 
             var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
 

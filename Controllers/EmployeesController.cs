@@ -23,7 +23,7 @@ namespace HRManagementAPI.Controllers
          */
         [HttpGet]
         [HttpGet]
-        public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10, string? search = null)
+        public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10, string? search = null, int? departmentId = null, bool? isActive = null)
         {
             if (pageNumber < 1)
             {
@@ -43,7 +43,7 @@ namespace HRManagementAPI.Controllers
                 });
             }
 
-            var employees = await _employeeService.GetAllAsync(pageNumber, pageSize, search);
+            var employees = await _employeeService.GetAllAsync(pageNumber, pageSize, search, departmentId, isActive);
 
             return Ok(employees);
         }
