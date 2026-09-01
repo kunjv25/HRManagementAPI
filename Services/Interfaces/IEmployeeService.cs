@@ -4,7 +4,7 @@ namespace HRManagementAPI.Services.Interfaces
 {
     public interface IEmployeeService
     {
-        Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive);                        // Get all employees
+        Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive, string? sortBy, string? sortOrder);                        // Get all employees
 
         Task<EmployeeResponseDto> GetByIdAsync(int id);                                                                                                     // Get employee by ID
 

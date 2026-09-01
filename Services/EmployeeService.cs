@@ -19,7 +19,7 @@ namespace HRManagementAPI.Services
         }
 
         // GET ALL EMPLOYEES
-        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive)
+        public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive, string? sortBy, string? sortOrder)
         {
             var query = _context.Employees.AsQueryable();
 
@@ -40,6 +40,38 @@ namespace HRManagementAPI.Services
                 // Where () and () and IsActive = 1 (only query is made)
                 query = query.Where(e => e.IsActive == isActive.Value);
             }
+
+            // Sorting
+            if (string.IsNullOrWhiteSpace(sortBy))
+            {                
+                query = query.OrderBy(e => e.Id);                                                                                               // Default Id (Asc sorting)
+            }
+
+            else if (sortBy.ToLower() == "firstname")
+            {
+                query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(e => e.FirstName) : query.OrderBy(e => e.FirstName);           // ?sortBy=firstname & sortOrder=desc/asc
+            }
+
+            else if (sortBy.ToLower() == "lastname")
+            {
+                query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(e => e.LastName) : query.OrderBy(e => e.LastName);             // ?sortBy=lastname & sortOrder=desc/asc
+            }
+
+            else if (sortBy.ToLower() == "salary")
+            {
+                query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(e => e.Salary) : query.OrderBy(e => e.Salary);                 // ?sortBy=salary & sortOrder=desc/asc
+            }
+
+            else if (sortBy.ToLower() == "joiningdate")
+            {
+                query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(e => e.JoiningDate) : query.OrderBy(e => e.JoiningDate);       // ?sortBy=joiningdate & sortOrder=asc/desc
+            }
+
+            else
+            {
+                query = query.OrderBy(e => e.Id);                                                                                               // Default sorting if invalid sortBy is provided
+            }
+
 
             var totalRecords = await query.CountAsync();
 

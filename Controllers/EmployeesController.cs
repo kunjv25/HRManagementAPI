@@ -1,6 +1,8 @@
 ﻿using HRManagementAPI.DTO.Employee;
 using HRManagementAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using System.Globalization;
 
 namespace HRManagementAPI.Controllers
 {
@@ -23,7 +25,10 @@ namespace HRManagementAPI.Controllers
          */
         [HttpGet]
         [HttpGet]
-        public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10, string? search = null, int? departmentId = null, bool? isActive = null)
+        public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10,                // pages 
+            string? search = null,                                                                          // for searching
+            int? departmentId = null, bool? isActive = null,                                                // for filtering
+            string? sortBy = null, string? sortOrder = null)                                                // for sorting
         {
             if (pageNumber < 1)
             {
@@ -43,7 +48,7 @@ namespace HRManagementAPI.Controllers
                 });
             }
 
-            var employees = await _employeeService.GetAllAsync(pageNumber, pageSize, search, departmentId, isActive);
+            var employees = await _employeeService.GetAllAsync(pageNumber, pageSize, search, departmentId, isActive, sortBy, sortOrder);
 
             return Ok(employees);
         }
