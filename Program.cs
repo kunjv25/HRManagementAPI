@@ -3,6 +3,7 @@ using HRManagementAPI.Middleware;
 using HRManagementAPI.Responses;
 using HRManagementAPI.Services;
 using HRManagementAPI.Services.Interfaces;
+using HRManagementAPI.Services.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +43,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 var app = builder.Build();
 

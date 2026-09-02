@@ -14,15 +14,11 @@ namespace HRManagementAPI.Services.Repositories
             _context = context;
         }
 
-
-        // Get all employees
-        public Task<IQueryable<Employee>> GetAllAsync()
+        // Get employees query
+        public IQueryable<Employee> GetAll()
         {
-            return Task.FromResult(
-                _context.Employees.AsQueryable()
-            );
+            return _context.Employees.AsQueryable();
         }
-
 
         // Get employee by ID
         public async Task<Employee?> GetByIdAsync(int id)
@@ -32,13 +28,11 @@ namespace HRManagementAPI.Services.Repositories
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-
         // Add employee
         public async Task AddAsync(Employee employee)
         {
             await _context.Employees.AddAsync(employee);
         }
-
 
         // Update employee
         public void Update(Employee employee)
@@ -46,27 +40,28 @@ namespace HRManagementAPI.Services.Repositories
             _context.Employees.Update(employee);
         }
 
-
         // Delete employee
         public void Delete(Employee employee)
         {
             _context.Employees.Remove(employee);
         }
 
-
-        // Check employee exists
+        // Check if employee exists
         public async Task<bool> ExistsAsync(int id)
         {
-            return await _context.Employees
-                .AnyAsync(e => e.Id == id);
+            return await _context.Employees.AnyAsync(e => e.Id == id);
         }
 
-
-        // Check email already exists
+        // Check if email already exists
         public async Task<bool> EmailExistsAsync(string email)
         {
-            return await _context.Employees
-                .AnyAsync(e => e.Email == email);
+            return await _context.Employees.AnyAsync(e => e.Email == email);
+        }
+
+        // Save changes to database
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
