@@ -1,40 +1,33 @@
-﻿using HRManagementAPI.Data;
-using HRManagementAPI.DTO.Department;
+﻿using HRManagementAPI.DTO.Department;
 using HRManagementAPI.Models;
 using HRManagementAPI.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using HRManagementAPI.Services.Repositories.Interfaces;
 
 namespace HRManagementAPI.Services
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly HRDbContext _context;
-        private readonly ILogger<DepartmentService> _logger;
+        private readonly IDepartmentRepository _departmentRepository;
 
-        public DepartmentService(HRDbContext context, ILogger<DepartmentService> logger)
+        public DepartmentService(IDepartmentRepository departmentRepository)
         {
-            _context = context;
-            _logger = logger;
+            _departmentRepository = departmentRepository;
         }
 
-
-        // Get all departments
         public async Task<IEnumerable<DepartmentResponseDto>> GetAllDepartmentsAsync()
         {
-            return await _context.Departments
-                .Select(d => new DepartmentResponseDto
-                {
-                    Id = d.Id,
-                    DepartmentName = d.DepartmentName
-                })
-                .ToListAsync();
+            var departments = await _departmentRepository.GetAllAsync();
+
+            return departments.Select(d => new DepartmentResponseDto
+            {
+                Id = d.Id,
+                DepartmentName = d.DepartmentName
+            });
         }
 
-
-        // Get department by ID
-        public async Task<DepartmentResponseDto?> GetDepartmentByIdAsync(int id) 
+        public async Task<DepartmentResponseDto?> GetDepartmentByIdAsync(int id)
         {
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
+            var department = await _departmentRepository.GetByIdAsync(id);
 
             if (department == null)
                 return null;
@@ -46,26 +39,20 @@ namespace HRManagementAPI.Services
             };
         }
 
-
-        // Create department
         public async Task<DepartmentResponseDto> CreateDepartmentAsync(DepartmentCreateDto dto)
         {
+            var nameExists = await _departmentRepository.IsDepartmentNameExistsAsync(dto.DepartmentName);
+
+            if (nameExists)
+                throw new InvalidOperationException("A department with this name already exists.");
+
             var department = new Department
             {
                 DepartmentName = dto.DepartmentName
             };
 
-            _context.Departments.Add(department);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                _logger.LogInformation($"Department {department.Id} created successfully.");
-            }
-            catch (DbUpdateException)
-            {
-                throw new InvalidOperationException("Department name already exists.");
-            }
+            await _departmentRepository.AddAsync(department);
+            await _departmentRepository.SaveChangesAsync();
 
             return new DepartmentResponseDto
             {
@@ -74,19 +61,22 @@ namespace HRManagementAPI.Services
             };
         }
 
-
-        // Update department
-        public async Task<DepartmentResponseDto?> UpdateDepartmentAsync(int id, DepartmentUpdateDto dto) 
+        public async Task<DepartmentResponseDto?> UpdateDepartmentAsync(int id, DepartmentUpdateDto dto)
         {
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
+            var department = await _departmentRepository.GetByIdAsync(id);
 
             if (department == null)
                 return null;
 
+            var nameExists = await _departmentRepository.IsDepartmentNameExistsAsync(dto.DepartmentName, id);
+
+            if (nameExists)
+                throw new InvalidOperationException("A department with this name already exists.");
+
             department.DepartmentName = dto.DepartmentName;
 
-            await _context.SaveChangesAsync();
-            _logger.LogInformation($"Department {department.Id} updated successfully.");
+            _departmentRepository.Update(department);
+            await _departmentRepository.SaveChangesAsync();
 
             return new DepartmentResponseDto
             {
@@ -95,19 +85,15 @@ namespace HRManagementAPI.Services
             };
         }
 
-
-        // Delete department
-        public async Task<bool> DeleteDepartmentAsync(int id) 
+        public async Task<bool> DeleteDepartmentAsync(int id)
         {
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
+            var department = await _departmentRepository.GetByIdAsync(id);
 
             if (department == null)
                 return false;
 
-            _context.Departments.Remove(department);
-
-            await _context.SaveChangesAsync();
-            _logger.LogInformation($"Department {department.Id} deleted successfully.");
+            _departmentRepository.Delete(department);
+            await _departmentRepository.SaveChangesAsync();
 
             return true;
         }

@@ -1,32 +1,33 @@
-﻿using HRManagementAPI.Data;
-using HRManagementAPI.DTO.Employee;
+﻿using HRManagementAPI.DTO.Employee;
 using HRManagementAPI.Models;
 using HRManagementAPI.Services.Interfaces;
+using HRManagementAPI.Services.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRManagementAPI.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly HRDbContext _context;
-        private readonly ILogger<EmployeeService> _logger;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IDepartmentRepository _departmentRepository;
+        public readonly ILogger<EmployeeService> _logger;
 
-
-        public EmployeeService(HRDbContext context, ILogger<EmployeeService> logger)
+        public EmployeeService(IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository,ILogger<EmployeeService> logger)
         {
-            _context = context;
+            _employeeRepository = employeeRepository;
+            _departmentRepository = departmentRepository;
             _logger = logger;
         }
 
         // GET ALL EMPLOYEES
         public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive, string? sortBy, string? sortOrder)
         {
-            var query = _context.Employees.AsQueryable();
+            var query = _employeeRepository.GetAll();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 // WHERE (FirstName LIKE '%john%' OR LastName LIKE '%john%' OR Email LIKE '%john%') (only query is made)
-                query = query.Where(e => e.FirstName.Contains(search) || e.LastName.Contains(search) || e.Email.Contains(search));    
+                query = query.Where(e => e.FirstName.Contains(search) || e.LastName.Contains(search) || e.Email.Contains(search));   
             }
 
             if (departmentId.HasValue)
@@ -111,30 +112,36 @@ namespace HRManagementAPI.Services
         // GET EMPLOYEE BY ID
         public async Task<EmployeeResponseDto?> GetByIdAsync(int id)
         {
-            return await _context.Employees
-                .Where(e => e.Id == id)
-                .Select(e => new EmployeeResponseDto
-                {
-                    Id = e.Id,
-                    FirstName = e.FirstName,
-                    LastName = e.LastName,
-                    Email = e.Email,
-                    Phone = e.Phone,
-                    Salary = e.Salary,
-                    JoiningDate = e.JoiningDate,
-                    IsActive = e.IsActive,
-                    LeavingDate = e.LeavingDate,
-                    DepartmentId = e.DepartmentId,
-                    DepartmentName = e.Department != null ? e.Department.DepartmentName : null
-                })
-                .FirstOrDefaultAsync();
+            // Get employee from repository
+            var employee = await _employeeRepository.GetByIdAsync(id);
+
+            if (employee == null)
+            {
+                return null;
+            }
+
+            // Convert Entity → Response DTO
+            return new EmployeeResponseDto
+            {
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+                Phone = employee.Phone,
+                Salary = employee.Salary,
+                JoiningDate = employee.JoiningDate,
+                IsActive = employee.IsActive,
+                LeavingDate = employee.LeavingDate,
+                DepartmentId = employee.DepartmentId,
+                DepartmentName = employee.Department?.DepartmentName
+            };
         }
 
 
         // CREATE EMPLOYEE
         public async Task<EmployeeResponseDto> CreateAsync(EmployeeCreateDto dto)
         {
-            var departmentExists = await _context.Departments.AnyAsync(d => d.Id == dto.DepartmentId);
+            var departmentExists = await _departmentRepository.IsDepartmentExistsAsync(dto.DepartmentId);
 
             if (!departmentExists)
             {
@@ -142,7 +149,7 @@ namespace HRManagementAPI.Services
                 throw new KeyNotFoundException("Department not found.");
             }
 
-            var emailExists = await _context.Employees.AnyAsync(e => e.Email == dto.Email);
+            var emailExists = await _employeeRepository.IsEmployeeEmailExistsAsync(dto.Email);
 
             if (emailExists)
             {
@@ -162,9 +169,9 @@ namespace HRManagementAPI.Services
                 DepartmentId = dto.DepartmentId
             };
 
-            _context.Employees.Add(employee);
+            _employeeRepository.CreateEmployee(employee);
 
-            await _context.SaveChangesAsync();
+            await _employeeRepository.SaveChangesAsync();
             _logger.LogInformation($"Employee {employee.Id} created successfully.");
 
             return new EmployeeResponseDto
@@ -186,14 +193,14 @@ namespace HRManagementAPI.Services
         // UPDATE EMPLOYEE
        public async Task<EmployeeResponseDto?> UpdateAsync(int id, EmployeeUpdateDto dto)
         {
-            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+            var employee = await _employeeRepository.GetByIdAsync(id);
 
             if (employee == null)
             {
                 return null;
             }
 
-            var departmentExists = await _context.Departments.AnyAsync(d => d.Id == dto.DepartmentId);
+            var departmentExists = await _departmentRepository.IsDepartmentExistsAsync(dto.DepartmentId);
 
             if (!departmentExists)
             {
@@ -201,9 +208,9 @@ namespace HRManagementAPI.Services
                 throw new KeyNotFoundException("Department not found.");
             }
 
-            var emailExists = await _context.Employees.AnyAsync(e => e.Email == dto.Email && e.Id != id);
+            var emailExists = await _employeeRepository.IsEmployeeEmailExistsAsync(dto.Email);
 
-            if (emailExists)
+            if (emailExists && employee.Email != dto.Email)
             {
                 _logger.LogWarning("Employee creation failed because email already exists.");
                 throw new InvalidOperationException("Employee with this email already exists.");
@@ -219,7 +226,9 @@ namespace HRManagementAPI.Services
             employee.LeavingDate = dto.LeavingDate;
             employee.DepartmentId = dto.DepartmentId;
 
-            await _context.SaveChangesAsync();
+            _employeeRepository.UpdateEmployee(employee);
+
+            await _employeeRepository.SaveChangesAsync();
             _logger.LogInformation($"Employee {employee.Id} updated successfully.");
 
             return new EmployeeResponseDto
@@ -241,16 +250,16 @@ namespace HRManagementAPI.Services
         // DELETE EMPLOYEE
         public async Task<bool> DeleteAsync(int id)
         {
-            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+            var employee = await _employeeRepository.GetByIdAsync(id);
 
             if (employee == null)
             {
                 return false;
             }
 
-            _context.Employees.Remove(employee);
+            _employeeRepository.DeleteEmployee(employee);
 
-            await _context.SaveChangesAsync();
+            await _employeeRepository.SaveChangesAsync();
             _logger.LogInformation($"Employee {employee.Id} deleted successfully.");
 
             return true;

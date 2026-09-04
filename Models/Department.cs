@@ -1,15 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HRManagementAPI.Models;
 
-namespace HRManagementAPI.Models
+public class Department
 {
-    public class Department
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [Required]
-        public string DepartmentName { get; set; } = string.Empty;
+    public string DepartmentName { get; set; } = string.Empty;
 
-        public ICollection<Employee> Employees { get; set; } 
-            = new List<Employee>();
-    }
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

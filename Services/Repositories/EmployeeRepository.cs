@@ -1,6 +1,6 @@
 ﻿using HRManagementAPI.Data;
 using HRManagementAPI.Models;
-using HRManagementAPI.Services.Interfaces;
+using HRManagementAPI.Services.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRManagementAPI.Services.Repositories
@@ -29,31 +29,31 @@ namespace HRManagementAPI.Services.Repositories
         }
 
         // Add employee
-        public async Task AddAsync(Employee employee)
+        public async Task CreateEmployee(Employee employee)
         {
             await _context.Employees.AddAsync(employee);
         }
 
         // Update employee
-        public void Update(Employee employee)
+        public void UpdateEmployee(Employee employee)
         {
-            _context.Employees.Update(employee);
+            _context.Employees.Update(employee);        
         }
 
         // Delete employee
-        public void Delete(Employee employee)
+        public void DeleteEmployee(Employee employee)
         {
             _context.Employees.Remove(employee);
         }
 
         // Check if employee exists
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> IsEmployeeExistsAsync(int id)
         {
             return await _context.Employees.AnyAsync(e => e.Id == id);
         }
 
         // Check if email already exists
-        public async Task<bool> EmailExistsAsync(string email)
+        public async Task<bool> IsEmployeeEmailExistsAsync(string email)
         {
             return await _context.Employees.AnyAsync(e => e.Email == email);
         }
