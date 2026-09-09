@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace HRManagementAPI.Services
@@ -20,39 +21,6 @@ namespace HRManagementAPI.Services
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
-        }
-
-        // Register a new user
-        public async Task<bool> RegisterAsync(RegisterDto dto)
-        {
-            // Check whether a user with given email already exists
-            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
-
-            // user exist in db so no register again
-            if (existingUser != null) 
-                return false;
-
-            // Create ApplicationUser object
-            var user = new ApplicationUser
-            {
-                UserName = dto.Email,
-                Email = dto.Email
-            };
-
-            // Create the user
-            var result = await _userManager.CreateAsync(user, dto.Password);
-
-            if (!result.Succeeded)
-                throw new InvalidOperationException(
-                    string.Join(", ", result.Errors.Select(e => e.Description)));
-
-            // Assign User role to newly registered user
-            if (await _roleManager.RoleExistsAsync("User"))
-            {
-                await _userManager.AddToRoleAsync(user, "User");
-            }
-
-            return true;
         }
 
         // Login user and generate JWT token
@@ -105,6 +73,72 @@ namespace HRManagementAPI.Services
 
             // Return JWT token as string
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        // Create login account for employee
+        public async Task<string> CreateEmployeeAccountAsync(string email)
+        {
+            // Check whether login account already exists
+            var existingUser = await _userManager.FindByEmailAsync(email);
+
+            if (existingUser != null)
+                throw new InvalidOperationException("Login account already exists for this employee.");
+
+            // Generate random 4-digit number
+            var randomNumber = RandomNumberGenerator.GetInt32(1000, 10000);
+
+            // Generate temporary password
+            var temporaryPassword = $"Tem@{randomNumber}";
+
+            // Create ApplicationUser
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email
+            };
+
+            // Create user with temporary password
+            var result = await _userManager.CreateAsync(user, temporaryPassword);
+
+            if (!result.Succeeded)
+                throw new InvalidOperationException(
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            // Assign User role
+            if (await _roleManager.RoleExistsAsync("User"))
+            {
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+            return temporaryPassword;
+        }
+
+        // Change user password
+        public async Task ChangePasswordAsync(string userId, ChangePasswordDto dto)
+        {
+            // Check new password and confirm password
+            if (dto.NewPassword != dto.ConfirmPassword)
+            {
+                throw new InvalidOperationException("New password and confirm password do not match.");
+            }
+
+            // Find user by ID
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            // Change password
+            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+
+            // Check result
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
         }
     }
 }

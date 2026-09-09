@@ -87,7 +87,7 @@ namespace HRManagementAPI.Controllers
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = employee.Id },
+                new { id = employee.Employee.Id },
                 employee
             );
         }

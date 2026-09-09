@@ -1,6 +1,8 @@
 ﻿using HRManagementAPI.DTO.Auth;
 using HRManagementAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HRManagementAPI.Controllers
 {
@@ -14,23 +16,6 @@ namespace HRManagementAPI.Controllers
         {
             _authService = authService;
         }
-
-        /***
-         * 
-         * Register a new user
-         * 
-         **/
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
-        {
-            var result = await _authService.RegisterAsync(dto);
-
-            if (!result)
-                return Conflict(new { message = "A user with this email already exists." });
-
-            return Ok(new { message = "User registered successfully." });
-        }
-
 
         /***
          * 
@@ -50,6 +35,18 @@ namespace HRManagementAPI.Controllers
                 message = "Login successful.",
                 token = token
             });
+        }
+
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _authService.ChangePasswordAsync(userId!, dto);
+
+            return Ok(new{message = "Password changed successfully."});
         }
     }
 }

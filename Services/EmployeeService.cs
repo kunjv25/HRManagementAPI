@@ -11,12 +11,14 @@ namespace HRManagementAPI.Services
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IDepartmentRepository _departmentRepository;
         public readonly ILogger<EmployeeService> _logger;
+        private readonly IAuthService _authService;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository,ILogger<EmployeeService> logger)
+        public EmployeeService(IEmployeeRepository employeeRepository, IDepartmentRepository departmentRepository,ILogger<EmployeeService> logger, IAuthService authService)
         {
             _employeeRepository = employeeRepository;
             _departmentRepository = departmentRepository;
             _logger = logger;
+            _authService = authService;
         }
 
         // GET ALL EMPLOYEES
@@ -139,7 +141,7 @@ namespace HRManagementAPI.Services
 
 
         // CREATE EMPLOYEE
-        public async Task<EmployeeResponseDto> CreateAsync(EmployeeCreateDto dto)
+        public async Task<EmployeeCreateResponseDto> CreateAsync(EmployeeCreateDto dto)
         {
             var departmentExists = await _departmentRepository.IsDepartmentExistsAsync(dto.DepartmentId);
 
@@ -174,18 +176,24 @@ namespace HRManagementAPI.Services
             await _employeeRepository.SaveChangesAsync();
             _logger.LogInformation($"Employee {employee.Id} created successfully.");
 
-            return new EmployeeResponseDto
+            var temporaryPassword = await _authService.CreateEmployeeAccountAsync(employee.Email);
+
+            return new EmployeeCreateResponseDto
             {
-                Id = employee.Id,
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                Email = employee.Email,
-                Phone = employee.Phone,
-                Salary = employee.Salary,
-                JoiningDate = employee.JoiningDate,
-                IsActive = employee.IsActive,
-                LeavingDate = employee.LeavingDate,
-                DepartmentId = employee.DepartmentId
+                Employee = new EmployeeResponseDto
+                {
+                    Id = employee.Id,
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName,
+                    Email = employee.Email,
+                    Phone = employee.Phone,
+                    Salary = employee.Salary,
+                    JoiningDate = employee.JoiningDate,
+                    IsActive = employee.IsActive,
+                    LeavingDate = employee.LeavingDate,
+                    DepartmentId = employee.DepartmentId
+                },
+                TemporaryPassword = temporaryPassword
             };
         }
 
