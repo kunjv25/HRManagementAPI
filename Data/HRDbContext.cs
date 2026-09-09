@@ -1,9 +1,10 @@
 ﻿using HRManagementAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace HRManagementAPI.Data
 {
-    public class HRDbContext : DbContext
+    public class HRDbContext : IdentityDbContext<ApplicationUser>
     {
         public HRDbContext(DbContextOptions<HRDbContext> options)
             : base(options)
@@ -12,6 +13,9 @@ namespace HRManagementAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Employee>()
                 .Property(e => e.Id)
                 .UseIdentityColumn(1, 1);

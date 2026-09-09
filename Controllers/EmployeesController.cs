@@ -1,11 +1,13 @@
 ﻿using HRManagementAPI.DTO.Employee;
 using HRManagementAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Globalization;
 
 namespace HRManagementAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class EmployeesController : ControllerBase
@@ -22,8 +24,7 @@ namespace HRManagementAPI.Controllers
          * get all employees
          * -------------------
          * GET: api/employees
-         */
-        [HttpGet]
+         */    
         [HttpGet]
         public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10,                // pages 
             string? search = null,                                                                          // for searching
@@ -77,7 +78,8 @@ namespace HRManagementAPI.Controllers
          * create employee
          * --------------------
          * POST: api/employees 
-         */ 
+         */
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeCreateDto dto)
         {
@@ -96,6 +98,7 @@ namespace HRManagementAPI.Controllers
          * ---------------------
          * PUT: api/employees/5 
          */
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, EmployeeUpdateDto dto)
         {
@@ -115,6 +118,7 @@ namespace HRManagementAPI.Controllers
          * -----------------------
          * DELETE: api/employees/5 
          */
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmployee(int id)
         {
