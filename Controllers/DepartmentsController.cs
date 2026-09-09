@@ -1,9 +1,11 @@
 ﻿using HRManagementAPI.DTO.Department;
 using HRManagementAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRManagementAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class DepartmentsController : ControllerBase
@@ -55,6 +57,7 @@ namespace HRManagementAPI.Controllers
          * POST: api/departments
          */
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(DepartmentCreateDto dto)
         {
             var department = await _departmentService.CreateDepartmentAsync(dto);
@@ -73,6 +76,7 @@ namespace HRManagementAPI.Controllers
          * PUT: api/departments/5
          */
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, DepartmentUpdateDto dto)
         {
             var department = await _departmentService.UpdateDepartmentAsync(id, dto);
@@ -92,6 +96,7 @@ namespace HRManagementAPI.Controllers
          * DELETE: api/departments/5
          */
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _departmentService.DeleteDepartmentAsync(id);
