@@ -173,10 +173,12 @@ namespace HRManagementAPI.Services
 
             _employeeRepository.CreateEmployee(employee);
 
+            var account = await _authService.CreateEmployeeAccountAsync(employee.Email);
+
+            employee.ApplicationUserId = account.UserId;
+
             await _employeeRepository.SaveChangesAsync();
             _logger.LogInformation($"Employee {employee.Id} created successfully.");
-
-            var temporaryPassword = await _authService.CreateEmployeeAccountAsync(employee.Email);
 
             return new EmployeeCreateResponseDto
             {
@@ -193,7 +195,7 @@ namespace HRManagementAPI.Services
                     LeavingDate = employee.LeavingDate,
                     DepartmentId = employee.DepartmentId
                 },
-                TemporaryPassword = temporaryPassword
+                TemporaryPassword = account.TemporaryPassword
             };
         }
 

@@ -35,5 +35,9 @@ namespace HRManagementAPI.Models
         public int DepartmentId { get; set; }
 
         public Department? Department { get; set; }
+
+        public string? ApplicationUserId { get; set; }
+
+        public ApplicationUser? ApplicationUser { get; set; }
     }
 }

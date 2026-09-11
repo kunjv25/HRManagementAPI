@@ -76,7 +76,7 @@ namespace HRManagementAPI.Services
         }
 
         // Create login account for employee
-        public async Task<string> CreateEmployeeAccountAsync(string email)
+        public async Task<EmployeeAccountResultDto> CreateEmployeeAccountAsync(string email)
         {
             // Check whether login account already exists
             var existingUser = await _userManager.FindByEmailAsync(email);
@@ -98,7 +98,7 @@ namespace HRManagementAPI.Services
             };
 
             // Create user with temporary password
-            var result = await _userManager.CreateAsync(user, temporaryPassword);
+            var result = await _userManager.CreateAsync(user, temporaryPassword);       //Creates the user in: AspNetUsers
 
             if (!result.Succeeded)
                 throw new InvalidOperationException(
@@ -107,10 +107,15 @@ namespace HRManagementAPI.Services
             // Assign User role
             if (await _roleManager.RoleExistsAsync("User"))
             {
-                await _userManager.AddToRoleAsync(user, "User");
+                //Adds the relationship between that user(aspnetusers) and role(aspnetroles) in- AspNetUserRoles
+                await _userManager.AddToRoleAsync(user, "User");    
             }
 
-            return temporaryPassword;
+            return new EmployeeAccountResultDto
+            {
+                UserId = user.Id,
+                TemporaryPassword = temporaryPassword
+            };
         }
 
         // Change user password

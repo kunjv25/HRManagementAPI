@@ -22,6 +22,7 @@ namespace HRManagementAPI.Controllers
          * Login user and return JWT token
          * 
          **/
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
