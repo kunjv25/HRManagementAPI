@@ -15,12 +15,16 @@ namespace HRManagementAPI.Services.Repositories
 
         public async Task<List<Department>> GetAllAsync()
         {
-            return await _context.Departments.ToListAsync();
+            return await _context.Departments
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Department?> GetByIdAsync(int id)
         {
-            return await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
+            return await _context.Departments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == id);
         }
 
         public async Task<bool> IsDepartmentExistsAsync(int id)

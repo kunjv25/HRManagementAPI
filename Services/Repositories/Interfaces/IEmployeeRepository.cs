@@ -4,9 +4,11 @@ namespace HRManagementAPI.Services.Repositories.Interfaces
 {
     public interface IEmployeeRepository
     {
-        IQueryable<Employee> GetAll();                                      // Get employees query
+        Task<Employee?> GetByUserIdAsync(string userId);                             // Get my-profile
 
-        Task<Employee?> GetByIdAsync(int id);                               // Get employee by ID
+        IQueryable<Employee> GetAllEmployees();                                      // Get employees query
+
+        Task<Employee?> GetEmployeeByIdAsync(int id);                               // Get employee by ID
 
         Task CreateEmployee(Employee employee);                             // Add employee
 

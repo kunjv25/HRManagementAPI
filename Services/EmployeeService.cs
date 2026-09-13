@@ -3,6 +3,7 @@ using HRManagementAPI.Models;
 using HRManagementAPI.Services.Interfaces;
 using HRManagementAPI.Services.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HRManagementAPI.Services
 {
@@ -21,10 +22,43 @@ namespace HRManagementAPI.Services
             _authService = authService;
         }
 
+        // GET MY-PROFILE
+        public async Task<EmployeeResponseDto> GetMyProfileAsync(ClaimsPrincipal user)
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new UnauthorizedAccessException("User ID not found in token.");
+            }
+
+            var employee = await _employeeRepository.GetByUserIdAsync(userId);
+
+            if (employee == null)
+            {
+                throw new KeyNotFoundException("Employee profile not found.");
+            }
+
+            return new EmployeeResponseDto
+            {
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+                Phone = employee.Phone,
+                Salary = employee.Salary,
+                JoiningDate = employee.JoiningDate,
+                IsActive = employee.IsActive,
+                LeavingDate = employee.LeavingDate,
+                DepartmentId = employee.DepartmentId,
+                DepartmentName = employee.Department?.DepartmentName
+            };
+        }
+
         // GET ALL EMPLOYEES
         public async Task<EmployeePagedResponseDto> GetAllAsync(int pageNumber, int pageSize, string? search, int? departmentId, bool? isActive, string? sortBy, string? sortOrder)
         {
-            var query = _employeeRepository.GetAll();
+            var query = _employeeRepository.GetAllEmployees();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -115,7 +149,7 @@ namespace HRManagementAPI.Services
         public async Task<EmployeeResponseDto?> GetByIdAsync(int id)
         {
             // Get employee from repository
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(id);
 
             if (employee == null)
             {
@@ -143,9 +177,9 @@ namespace HRManagementAPI.Services
         // CREATE EMPLOYEE
         public async Task<EmployeeCreateResponseDto> CreateAsync(EmployeeCreateDto dto)
         {
-            var departmentExists = await _departmentRepository.IsDepartmentExistsAsync(dto.DepartmentId);
+            var departmentData = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
 
-            if (!departmentExists)
+            if (departmentData == null)
             {
                 _logger.LogWarning($"Employee creation failed. Department {dto.DepartmentId} not found.");
                 throw new KeyNotFoundException("Department not found.");
@@ -193,7 +227,8 @@ namespace HRManagementAPI.Services
                     JoiningDate = employee.JoiningDate,
                     IsActive = employee.IsActive,
                     LeavingDate = employee.LeavingDate,
-                    DepartmentId = employee.DepartmentId
+                    DepartmentId = employee.DepartmentId,
+                    DepartmentName = departmentData?.DepartmentName
                 },
                 TemporaryPassword = account.TemporaryPassword
             };
@@ -203,16 +238,16 @@ namespace HRManagementAPI.Services
         // UPDATE EMPLOYEE
        public async Task<EmployeeResponseDto?> UpdateAsync(int id, EmployeeUpdateDto dto)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(id);
 
             if (employee == null)
             {
                 return null;
             }
 
-            var departmentExists = await _departmentRepository.IsDepartmentExistsAsync(dto.DepartmentId);
+            var departmentData = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
 
-            if (!departmentExists)
+            if (departmentData == null)
             {
                 _logger.LogWarning($"Employee creation failed. Department {dto.DepartmentId} not found.");
                 throw new KeyNotFoundException("Department not found.");
@@ -252,7 +287,8 @@ namespace HRManagementAPI.Services
                 JoiningDate = employee.JoiningDate,
                 IsActive = employee.IsActive,
                 LeavingDate = employee.LeavingDate,
-                DepartmentId = employee.DepartmentId
+                DepartmentId = employee.DepartmentId,
+                DepartmentName = departmentData?.DepartmentName
             };
         }
 
@@ -260,7 +296,7 @@ namespace HRManagementAPI.Services
         // DELETE EMPLOYEE
         public async Task<bool> DeleteAsync(int id)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(id);
 
             if (employee == null)
             {

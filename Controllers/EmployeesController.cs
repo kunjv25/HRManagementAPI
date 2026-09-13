@@ -21,10 +21,25 @@ namespace HRManagementAPI.Controllers
 
 
         /***
+         * my profile
+         * -------------------
+         * GET: api/me
+         */
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            var employee = await _employeeService.GetMyProfileAsync(User);
+
+            return Ok(employee);
+        }
+
+
+        /***
          * get all employees
          * -------------------
          * GET: api/employees
-         */    
+         */
         [HttpGet]
         public async Task<IActionResult> GetEmployees(int pageNumber = 1, int pageSize = 10,                // pages 
             string? search = null,                                                                          // for searching

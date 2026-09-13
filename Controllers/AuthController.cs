@@ -50,4 +50,4 @@ namespace HRManagementAPI.Controllers
             return Ok(new{message = "Password changed successfully."});
         }
     }
-}
+}   

@@ -14,16 +14,26 @@ namespace HRManagementAPI.Services.Repositories
             _context = context;
         }
 
+        // Get my-profile
+        public async Task<Employee?> GetByUserIdAsync(string userId)
+        {
+            return await _context.Employees
+                .AsNoTracking()
+                .Include(e => e.Department)
+                .FirstOrDefaultAsync(e => e.ApplicationUserId == userId);
+        }
+
         // Get employees query
-        public IQueryable<Employee> GetAll()
+        public IQueryable<Employee> GetAllEmployees()
         {
             return _context.Employees.AsQueryable();
         }
 
         // Get employee by ID
-        public async Task<Employee?> GetByIdAsync(int id)
+        public async Task<Employee?> GetEmployeeByIdAsync(int id)
         {
             return await _context.Employees
+                .AsNoTracking()
                 .Include(e => e.Department)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }

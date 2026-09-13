@@ -1,9 +1,12 @@
 ﻿using HRManagementAPI.DTO.Employee;
+using System.Security.Claims;
 
 namespace HRManagementAPI.Services.Interfaces
 {
     public interface IEmployeeService
     {
+        Task<EmployeeResponseDto> GetMyProfileAsync(ClaimsPrincipal user);                  // Get my-profile
+
         Task<EmployeePagedResponseDto> GetAllAsync(                                          // Get all employees
             int pageNumber, 
             int pageSize, 
